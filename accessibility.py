@@ -38,7 +38,8 @@ accessibility = np.zeros(shape=(N))
 if args.normalized:
 	for i in xrange(N):
 		if args.verbose:
-			print('Calculating progress: '+string(int(float(i+1)*100/N))+'%',end='\r')
+			print('Calculating progress: '+str(int(float(i+1)*100/N))+'%',end='\r')
+			sys.stdout.flush()
 		accessibility[i] = calculateNormalizedNodeDiversity(g,args.walk,i,args.steps,directed)
 else:
 	for i in xrange(N):
