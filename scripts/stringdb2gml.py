@@ -99,9 +99,20 @@ class Network:
 				continue
 			measure = int(line[measureIndex])
 			if measureCol == "combined_score":
-				measure = int(line[measureIndex])-int(line[neighborhoodIndex])
-			if line[0] in self.genes.namesDict.keys() and line[1] in self.genes.namesDict.keys() and measure:
-				tuples.append([self.genes.namesDict[line[0]],self.genes.namesDict[line[1]],measure])
+				if int(line[measureIndex])==int(line[neighborhoodIndex]):
+					measure = 0
+			if measure:
+				v1 = ""
+				v2 = ""
+				if line[0] in self.genes.namesDict.keys():
+					v1 = self.genes.namesDict[line[0]]
+				else:
+					v1 = line[0]
+				if line[1] in self.genes.namesDict.keys():
+					v2 = self.genes.namesDict[line[1]]
+				else:
+					v2 = line[1]
+				tuples.append([v1,v2,measure])
 		self.g = Graph.TupleList(tuples,edge_attrs=[measureCol])
 		for i in xrange(len(self.g.vs)):
 			print(self.genes.annotationDict[self.g.vs[i]['name']])
@@ -133,7 +144,7 @@ genes = Genes()
 genes.createGenesFromGB(args.inputgb)
 print(len(genes.geneList))
 
-genes.getStringDBNames(args.inputstringseq,0.7)
+genes.getStringDBNames(args.inputstringseq,0.6)
 print(genes.totalMatches)
 
 net = Network(genes)
