@@ -52,10 +52,43 @@ def calculateNodeDiversity(net,h,i,M=200,directed=True):
 	probabilities = nonZeroV/M
 	diversity = -sum(probabilities*np.log(probabilities))
 	return diversity
+	
+#Calculate the Diversity value from the node i in the net igraph network running until error less than 0.05 in a window w
+def calculateConvergedNodeDiversity(net,h,i,e=0.001,w=100,directed=True,norm = False):
+	if net.vs[i].degree() == 0 :
+		return 0
+	N = len(net.vs)
+	V = np.zeros(shape=(N))
+	error = 1.
+	window = []
+	count = 1.
+	while error>e:
+		path = selfAvoidWalk(net,h,i,directed)
+		V[path[-1]] += 1
+		nonZeroV = V[V>0]
+		probabilities = nonZeroV/count
+		diversity = -sum(probabilities*np.log(probabilities))
+		if norm:
+			diversity = diversity/(1/np.log(len(net.vs)))
+		window.insert(0,diversity)
+		if len(window)>w:
+			window.pop()
+			error = abs(np.mean(window)-diversity)/diversity
+		if count>100000:
+			print("Warning: convergence exceded maximum number of walks (100000).")		
+			break
+			
+		count+=1
+	#print("Converged after "+str(int(count))+" walks.")
+	return diversity
 
 #Calculate the Normalized Diversity value from the node i in the net igraph network running M walks
 def calculateNormalizedNodeDiversity(net,h,i,M=200,directed=True):
 	return calculateNodeDiversity(net,h,i,M,directed)/(1/np.log(len(net.vs)))
+
+#Calculate the Normalized Converged Diversity value from the node i in the net igraph network running M walks
+def calculateNormalizedConvergedNodeDiversity(net,h,i,e=0.000001,w=100,directed=True):
+	return calculateConvergedNodeDiversity(net,h,i,e,w,directed,True)
 
 
 
